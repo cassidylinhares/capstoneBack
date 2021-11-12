@@ -7,16 +7,16 @@ from firebase import getLights, getLight, insertLight
 @api_view(['GET'])
 def api_overview(request):
     data = {
-        "all_entries":"getItems/",
-        "single_entry": "getItem/<str:pk>/",
-        "create_entry": "insertItem/",
-        "update_entry": "updateItem/<str:pk>/",
-        "delete_entry": "deleteItem/<str:pk>/",
+        "all_entries":"getLights/",
+        "single_entry": "getLight/<str:pk>/",
+        "create_entry": "insertLight/",
+        # "update_entry": "updateLight/<str:pk>/",
+        # "delete_entry": "deleteLight/<str:pk>/",
     }
     return Response(data=data, status=status.HTTP_200_OK)
     
 @api_view(['GET'])
-def get_items(request):
+def get_lights(request):
     try:
         entries = getLights()
         return Response(data=entries, status=status.HTTP_200_OK)
@@ -24,7 +24,7 @@ def get_items(request):
         return Response(status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['GET'])
-def get_item(request, pk):
+def get_light(request, pk):
     try:
         entry = getLight(pk)
         return Response(data=entry, status=status.HTTP_200_OK)
@@ -32,7 +32,7 @@ def get_item(request, pk):
         return Response(status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['POST'])
-def insert_item(request):
+def insert_light(request):
     # serializer = MoistureSerializer(data=request.data)
     try:
         entry = insertLight(request.data)
@@ -41,7 +41,7 @@ def insert_item(request):
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 # @api_view(['PUT'])
-# def update_item(request, pk):
+# def update_light(request, pk):
 #     try: 
 #         entry = Moisture.objects.get(id=pk)
 #         serializer = MoistureSerializer(instance=entry, data=request.data)
@@ -55,7 +55,7 @@ def insert_item(request):
 #         return Response(status=status.HTTP_404_NOT_FOUND)
 
 # @api_view(['DELETE'])
-# def delete_item(request, pk):
+# def delete_light(request, pk):
 #     try:
 #         entry = Moisture.objects.get(id=pk)
 #         entry.delete()

@@ -3,9 +3,9 @@ from . import views
 
 urlpatterns = [
     path('', views.api_overview, name="ApiOverview"),
-    path('getItems/', views.get_items, name="getItems"),
-    path('getItem/<str:pk>/', views.get_item, name="getItem"),
-    path('insertItem/', views.insert_item, name="insertItem"),
-    # path('updateItem/<str:pk>/', views.update_item, name="updateItem"),
-    # path('deleteItem/<str:pk>/', views.delete_item, name="deleteItem"),
+    path('getLights/', views.get_lights, name="getLights"),
+    path('getLight/<str:pk>/', views.get_light, name="getLight"),
+    path('insertLight/', views.insert_light, name="insertLight"),
+    # path('updateLight/<str:pk>/', views.update_light, name="updateLight"),
+    # path('deleteLight/<str:pk>/', views.delete_light, name="deleteLight"),
 ]

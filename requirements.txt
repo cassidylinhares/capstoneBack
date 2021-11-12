@@ -1,5 +1,6 @@
-'djangorestframework'
-'django-cors-headers'
-'markdown'
-'django-filter'
-'firebase-admin'
+Django==3.2.9
+django-cors-headers==3.10.0
+django-filter==21.1
+djangorestframework==3.12.4
+firebase-admin==5.1.0
+Markdown==3.3.4
