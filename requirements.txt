@@ -2,3 +2,4 @@
 'django-cors-headers'
 'markdown'
 'django-filter'
+'firebase-admin'

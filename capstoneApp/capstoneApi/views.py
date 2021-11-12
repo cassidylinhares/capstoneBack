@@ -2,6 +2,8 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
+from firebase import getLights, getLight, insertLight
+
 @api_view(['GET'])
 def api_overview(request):
     data = {
@@ -13,34 +15,30 @@ def api_overview(request):
     }
     return Response(data=data, status=status.HTTP_200_OK)
     
-# @api_view(['GET'])
-# def get_items(request):
-#     try:
-#         entries = Moisture.objects.all()
-#         serializer = MoistureSerializer(entries, many=True)
-#         return Response(data=serializer.data, status=status.HTTP_200_OK)
-#     except Moisture.DoesNotExist:
-#         return Response(status=status.HTTP_404_NOT_FOUND)
+@api_view(['GET'])
+def get_items(request):
+    try:
+        entries = getLights()
+        return Response(data=entries, status=status.HTTP_200_OK)
+    except:
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
-# @api_view(['GET'])
-# def get_item(request, pk):
-#     try:
-#         entry = Moisture.objects.get(id=pk)
-#         serializer = MoistureSerializer(entry)
-#         return Response(serializer.data, status=status.HTTP_200_OK)
-#     except Moisture.DoesNotExist:
-#         return Response(status=status.HTTP_404_NOT_FOUND)
+@api_view(['GET'])
+def get_item(request, pk):
+    try:
+        entry = getLight(pk)
+        return Response(data=entry, status=status.HTTP_200_OK)
+    except:
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
-# @api_view(['POST'])
-# def insert_item(request):
-#     print(request.data)
-#     serializer = MoistureSerializer(data=request.data)
-
-#     if serializer.is_valid(): 
-#         serializer.save()
-#         return Response(serializer.data, status=status.HTTP_201_CREATED)
-        
-#     return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+@api_view(['POST'])
+def insert_item(request):
+    # serializer = MoistureSerializer(data=request.data)
+    try:
+        entry = insertLight(request.data)
+        return Response(data=entry, status=status.HTTP_201_CREATED)
+    except:  
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 # @api_view(['PUT'])
 # def update_item(request, pk):
