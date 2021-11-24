@@ -1,8 +1,12 @@
+from datetime import datetime
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+import requests
+import json
 
-from firebase import getLights, getLight, insertLight
+from firebase import getLights, getLight, insertLight, getTemps, insertTemp
+from capstoneApi.external import thermostat, lights
 
 @api_view(['GET'])
 def api_overview(request):
@@ -16,27 +20,75 @@ def api_overview(request):
     return Response(data=data, status=status.HTTP_200_OK)
     
 @api_view(['GET'])
-def get_lights(request):
+def get_lights(request, room):
     try:
-        entries = getLights()
+        entries = getLights(room)
         return Response(data=entries, status=status.HTTP_200_OK)
     except:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['GET'])
-def get_light(request, pk):
+def get_light(request, room):
     try:
-        entry = getLight(pk)
+        entry = getLight(room)
         return Response(data=entry, status=status.HTTP_200_OK)
+    except:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['GET'])
+def set_light(request, room, cmd):
+    time = datetime.now()
+    try:
+        res = requests.get(lights[room]+lights['setLight']+cmd).json()
+    
+        light = {
+            'name': res['name'],
+            'status': res['status'],
+            'time': time.strftime("%Y-%m-%dT%H:%M:%SZ")
+        }
+
+        entry = insertLight(light)
+        return Response(data=res, status=status.HTTP_200_OK)
     except:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['POST'])
 def insert_light(request):
-    # serializer = MoistureSerializer(data=request.data)
     try:
+        print(request.data)
         entry = insertLight(request.data)
         return Response(data=entry, status=status.HTTP_201_CREATED)
+    except:  
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+###### THERMOSTAT ######
+@api_view(['GET'])
+def get_temps(request):
+    try:
+        entries = getTemps()
+        return Response(data=entries, status=status.HTTP_200_OK)
+    except:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['GET'])
+def set_temp(request, temp):
+    try:
+        res = requests.get(thermostat['base']+thermostat['setTemp']+temp)
+        return Response(data=res, status=status.HTTP_200_OK)
+    except:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['POST'])
+def insert_temp(request):
+    time = datetime.now()
+    try:
+        temp = {
+            u'temp': request.data['temp'],
+            u'time': time.strftime("%Y-%m-%dT%H:%M:%SZ")
+        }
+        # entry = insertTemp(temp)
+        
+        return Response(data=temp, status=status.HTTP_201_CREATED)
     except:  
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
