@@ -3,23 +3,29 @@ from firebase import getDietPrevMonth, getTransportationPrevMonth
 
 
 def calculateCarbonDiet(data):
-    #calculate the carbon for that day
-    #return the carbon in grams or kg
+    # calculate the carbon for that day
+    # return the carbon in grams or kg
     return
+
 
 def calculateCarbonTransportation():
     return
 
 # check for lowest producer/category
+
+
 def lowestCategory():
     # STEP1: get avg for each category over the month
-    diet = getDietPrevMonth('userId') #[{date: dksadkas, breakfast: {lamb:1}}, {date: dksadkas, breakfast: {lamb:1}}]
+    # [{date: dksadkas, breakfast: {lamb:1}}, {date: dksadkas, breakfast: {lamb:1}}]
+    diet = getDietPrevMonth('userId')
     dietCarbon = [calculateCarbonDiet(i) for i in diet]
     avgDiet = sum(dietCarbon)/len(dietCarbon)
 
-    # transportation: getting the avg 
-    transportation = getTransportationPrevMonth('userId') #[{date: dksadkas, breakfast: {lamb:1}}, {date: dksadkas, breakfast: {lamb:1}}]
-    transportationCarbon = [calculateCarbonTransportation(i) for i in transportation]
+    # transportation: getting the avg
+    # [{date: dksadkas, breakfast: {lamb:1}}, {date: dksadkas, breakfast: {lamb:1}}]
+    transportation = getTransportationPrevMonth('userId')
+    transportationCarbon = [
+        calculateCarbonTransportation(i) for i in transportation]
     avgTransportation = sum(transportationCarbon)/len(transportationCarbon)
 
     '''
@@ -40,17 +46,22 @@ def lowestCategory():
     run this each day
     '''
     return minCategory
-    
+
 # check for highest producer (same as low but with highest)
+
+
 def highestCategory():
  # STEP1: get avg for each category over the month
-    diet = getDietPrevMonth('userId') #[{date: dksadkas, breakfast: {lamb:1}}, {date: dksadkas, breakfast: {lamb:1}}]
+    # [{date: dksadkas, breakfast: {lamb:1}}, {date: dksadkas, breakfast: {lamb:1}}]
+    diet = getDietPrevMonth('userId')
     dietCarbon = [calculateCarbonDiet(i) for i in diet]
     avgDiet = sum(dietCarbon)/len(dietCarbon)
 
-    # transportation: getting the avg 
-    transportation = getTransportationPrevMonth('userId') #[{date: dksadkas, breakfast: {lamb:1}}, {date: dksadkas, breakfast: {lamb:1}}]
-    transportationCarbon = [calculateCarbonTransportation(i) for i in transportation]
+    # transportation: getting the avg
+    # [{date: dksadkas, breakfast: {lamb:1}}, {date: dksadkas, breakfast: {lamb:1}}]
+    transportation = getTransportationPrevMonth('userId')
+    transportationCarbon = [
+        calculateCarbonTransportation(i) for i in transportation]
     avgTransportation = sum(transportationCarbon)/len(transportationCarbon)
 
     '''
@@ -72,4 +83,4 @@ def highestCategory():
     '''
     return maxCategory
 
-# check thresh hold
+# check if above thresh hold
