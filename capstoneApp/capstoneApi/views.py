@@ -3,7 +3,6 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 import requests
-import json
 
 from firebase import getLights, getLight, insertLight, getTemps, insertTemp
 from capstoneApi.external import thermostat, lights
