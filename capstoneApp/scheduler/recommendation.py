@@ -1,5 +1,6 @@
+from asyncio import transports
 from unicodedata import category
-from firebase import getDietPrevMonth, getTransportationPrevMonth, getDiet
+from firebase import getDietPrevMonth, getTransportationPrevMonth, getDiet, getTransportation
 
 
 def calculateCarbonDiet(data):
@@ -41,7 +42,14 @@ def calculateCarbonTransportation():
                      'Car (4 passengers)': 48, 'Domestic Rail': 46, 'Coach Bus': 29, 'Eletric Vehicle': 80, 'Taxi/Uber': 244,
                      'Motorbike': 126, 'Bike': 8, 'Walk': 0}
 
-    return
+    transport = getTransportation('userId, timestamp')
+    carbonProduced = 0
+
+    for i in transport[1:]:
+        distance = transport[i]
+        carbonProduced += distance * transportMode[i]
+
+    return carbonProduced
 
 # check for lowest producer/category
 
