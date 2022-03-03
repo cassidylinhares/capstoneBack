@@ -4,7 +4,6 @@ from firebase import getDietPrevMonth, getTransportationPrevMonth, getDiet, getT
 
 
 def calculateCarbonDiet(data):
-
     # CO2 produced in each food, per serving (g)
     foodCarbon = {'Beef': 7461, 'Chocolate': 1400, 'Lamb': 2979, 'Coffee': 4993, 'Shellfish': 2015, 'Cheese': 1194,
                   'Fish': 1022, 'Bacon': 923, 'Chicken': 740, 'Turkey': 740, 'Eggs': 560, 'Rice': 445, 'Nuts': 129,
@@ -123,4 +122,4 @@ def highestCategory():
     '''
     return maxCategory
 
-# check thresh hold
+# check if above thresh hold
