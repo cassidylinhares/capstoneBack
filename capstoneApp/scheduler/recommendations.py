@@ -12,34 +12,13 @@ def executeRecommendations():
 
 
 def calculateCarbonDiet(data):
-    # CO2 produced in each food, per serving (g)
-    foodCarbon = {'Beef (Cows Meat)': 7461, 'Chocolate': 1400, 'Lamb': 2979, 'Coffee': 4993, 'Shellfish': 2015, 'Cheese and Yogurt': 1194,
-                  'Fish': 1022, 'Bacon': 923, 'Chicken': 740, 'Turkey': 740, 'Eggs': 560, 'Rice': 445, 'Nuts': 129,
-                  'Tofu': 474, 'Milk': 756, 'Oatmeal': 248, 'Vegetables': 45, 'Beer': 518, 'Wine': 358,
-                  'Bread': 133, 'Pasta': 133, 'Crackers': 133, 'Berries': 176, 'Fruit': 121, 'Peas': 147,
-                  'Root Vegetables': 37, 'Juice': 121, 'Baked Goods': 63, 'Potatoes': 39}
-
-    # {date: dksadkas, breakfast: {lamb:1}, }
-    # calculate the carbon for that day
-
-    dailySumBreakfast, dailySumLunch, dailySumDinner = 0, 0, 0
+    sum = 0
 
     if 'breakfast' in data:
-        breakfast = list(data['breakfast'].items())
-        dailySumBreakfast = sum([b[1] * foodCarbon[b[0]]
-                                for b in breakfast])
-    if 'lunch' in data:
-        lunch = list(data['lunch'].items())
-        dailySumLunch = sum([l[1] * foodCarbon[l[0]] for l in lunch])
+        sum = sum([d['total'] for d in data])
 
-    if 'dinner' in data:
-        dinner = list(data['dinner'].items())
-        dailySumDinner = sum([d[1] * foodCarbon[d[0]] for d in dinner])
-
-    carbonProduced = sum(
-        [dailySumBreakfast, dailySumLunch, dailySumDinner])
     # return the carbon in grams or kg
-    return carbonProduced
+    return sum
 
 
 def calculateCarbonTransportation(data):

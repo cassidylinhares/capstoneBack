@@ -30,17 +30,16 @@ def getLight(room):
     doc_ref = db.collection(u'lights').document(room)
     doc = doc_ref.get()
 
-    light = {}
-    light[room] = doc.to_dict()
-
-    return light
+    data = doc.to_dict()
+    data['room'] = room
+    return data
 
 
 def insertLight(data):
     light_data = {
         'name': data['name'],
         'status': data['status'],
-        'time': data.strftime("%Y-%m-%dT%H:%M:%SZ")
+        'time':  datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
     }
 
     db = firestore.client()
@@ -58,10 +57,47 @@ def insertLight(data):
         u'time': datetime.fromisoformat(light_data['time'][:-1])
     })
 
-    doc = doc_ref.get()
+    return light_data
+
+
+def insertLightDuration(room, lastOn):
+    on_data = {
+        'time': lastOn['time'].strftime("%Y-%m-%dT%H:%M:%SZ")
+    }
+
+    off_data = {
+        'time': datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
+    }
+
+    # get difference
+    difference = datetime.strptime(
+        off_data['time'], "%Y-%m-%dT%H:%M:%SZ") - datetime.strptime(on_data['time'], "%Y-%m-%dT%H:%M:%SZ")
+
+    duration_seconds = difference.total_seconds()
+    # get time in number of days, hours, minutes, seconds
+    days = divmod(duration_seconds, 86400)
+    hours = divmod(days[1], 3600)
+    minutes = divmod(hours[1], 60)
+    seconds = divmod(minutes[1], 1)[0]
+
+    # insert info into db
+    db = firestore.client()
+    duration_ref = db.collection(u'lights').document(
+        room).collection(u'duration').document(off_data['time'])
+
+    duration = str(int(days[0])) + ':' + str(int(hours[0])) + ':' + \
+        str(int(minutes[0])) + ':' + str(int(seconds))
+
+    duration_ref.set({
+        u'duration': duration,
+        u'timeOn': datetime.fromisoformat(on_data['time'][:-1]),
+        u'timeOff': datetime.fromisoformat(off_data['time'][:-1])
+    })
+
+    doc = duration_ref.get()
 
     light = {}
-    light[light_data['time']] = doc.to_dict()
+    light[off_data['time']] = doc.to_dict()
 
     return light
 
@@ -113,24 +149,15 @@ def insertTemp(data):
 
 def getDiet(userId, datestamp):
     db = firestore.client()
-    doc_breakfast = db.collection(u'userDiet').document(
-        userId).collection(u'breakfast').document(datestamp)
-    doc_lunch = db.collection(u'userDiet').document(
-        userId).collection(u'lunch').document(datestamp)
-    doc_dinner = db.collection(u'userDiet').document(
-        userId).collection(u'dinner').document(datestamp)
+    doc_ref = db.collection(u'userInfo').document(
+        userId).collection(u'dietTotals').document(datestamp)
 
-    doc1 = doc_breakfast.get()
-    doc2 = doc_lunch.get()
-    doc3 = doc_dinner.get()
+    doc = doc_ref.get()
 
     diet = {'date': datestamp}
-    if doc1.exists:
-        diet['breakfast'] = doc1.to_dict()
-    if doc2.exists:
-        diet['lunch'] = doc2.to_dict()
-    if doc3.exists:
-        diet['dinner'] = doc3.to_dict()
+    if doc.exists:
+        data = doc.to_dict()
+        diet['carbon'] = data['total'] if data['total'] in data else 0
 
     return diet
 
@@ -171,8 +198,8 @@ def getDietPrevMonth(userId):
 
 def getTransportation(userId, datestamp):
     db = firestore.client()
-    doc_ref = db.collection(u'userTransportation').document(
-        userId).collection(u'data').document(datestamp)
+    doc_ref = db.collection(u'userInfo').document(
+        userId).collection(u'transportationTotals').document(datestamp)
     doc = doc_ref.get()
 
     transportation = {'date': datestamp}

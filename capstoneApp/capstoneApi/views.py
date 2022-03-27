@@ -4,9 +4,9 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 import requests
 
-from firebase.firebase import getLights, getLight, insertLight, getTemps, insertTemp
+from firebase.firebase import getLights, getLight, insertLight, getTemps, insertTemp, insertLightDuration
 from capstoneApi.external import thermostat, lights
-from scheduler.lights import pauseLight, resumeLight, setWeekdayLightOn, setWeekdayLightOff, setWeekendLightOn, setWeekendLightOff
+# from scheduler.lights import pauseLight, resumeLight, setWeekdayLightOn, setWeekdayLightOff, setWeekendLightOn, setWeekendLightOff
 
 
 @api_view(['GET'])
@@ -41,17 +41,20 @@ def get_light(request, room):
 
 @api_view(['GET'])
 def set_light(request, room, cmd):
-    time = datetime.now()
     try:
-        res = requests.get(lights[room]+lights['setLight']+cmd).json()
+        lastOn = getLight(room)
 
+        res = requests.get(lights[room]+lights['setLight']+cmd).json()
+        entry = insertLight(res)
         # light = {
         #     'name': res['name'],
         #     'status': res['status'],
         #     'time': time.strftime("%Y-%m-%dT%H:%M:%SZ")
         # }
 
-        entry = insertLight(res)
+        if cmd == 'off':
+            entry = insertLightDuration(room, lastOn)
+
         return Response(data=entry, status=status.HTTP_200_OK)
     except:
         return Response(status=status.HTTP_404_NOT_FOUND)
