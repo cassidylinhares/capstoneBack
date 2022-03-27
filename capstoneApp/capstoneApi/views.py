@@ -6,6 +6,7 @@ import requests
 
 from firebase.firebase import getLights, getLight, insertLight, getTemps, insertTemp
 from capstoneApi.external import thermostat, lights
+from scheduler.lights import pauseLight, resumeLight, setWeekdayLightOn, setWeekdayLightOff, setWeekendLightOn, setWeekendLightOff
 
 
 @api_view(['GET'])
@@ -44,20 +45,80 @@ def set_light(request, room, cmd):
     try:
         res = requests.get(lights[room]+lights['setLight']+cmd).json()
 
-        light = {
-            'name': res['name'],
-            'status': res['status'],
-            'time': time.strftime("%Y-%m-%dT%H:%M:%SZ")
-        }
+        # light = {
+        #     'name': res['name'],
+        #     'status': res['status'],
+        #     'time': time.strftime("%Y-%m-%dT%H:%M:%SZ")
+        # }
 
-        entry = insertLight(light)
-        return Response(data=res, status=status.HTTP_200_OK)
+        entry = insertLight(res)
+        return Response(data=entry, status=status.HTTP_200_OK)
     except:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(['POST'])
 def insert_light(request):
+    try:
+        print(request.data)
+        entry = insertLight(request.data)
+        return Response(data=entry, status=status.HTTP_201_CREATED)
+    except:
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+def set_weekday_schedule_light_on(request, room, time):
+    try:
+        print(room, time)
+        setWeekdayLightOn(room, time)
+        return Response(data="successfully updated", status=status.HTTP_201_CREATED)
+    except:
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+def set_weekend_schedule_light_on(request, room, time):
+    try:
+        print(room, time)
+        setWeekendLightOn(room, time)
+        return Response(data="successfully updated", status=status.HTTP_201_CREATED)
+    except:
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+def set_weekday_schedule_light_off(request, room, time):
+    try:
+        print(room, time)
+        setWeekdayLightOff(room, time)
+        return Response(data="successfully updated", status=status.HTTP_201_CREATED)
+    except:
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+def set_weekend_schedule_light_off(request, room, time):
+    try:
+        print(room, time)
+        setWeekendLightOff(room, time)
+        return Response(data="successfully updated", status=status.HTTP_201_CREATED)
+    except:
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+def pause_schedule_light(request, room):
+    try:
+        print(room)
+        res = pauseLight(room)
+        return Response(data=res, status=status.HTTP_201_CREATED)
+    except:
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+def resume_schedule_light(request, room):
     try:
         print(request.data)
         entry = insertLight(request.data)

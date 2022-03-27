@@ -1,5 +1,5 @@
 from firebase_admin import auth
-from firebase.firebase import getDietPrevMonth, getTransportationPrevMonth, getSuggestion
+from firebase.firebase import getDietPrevWeek, getTransportationPrevWeek, getSuggestion
 
 
 def executeRecommendations():
@@ -60,13 +60,13 @@ def calculateCarbonTransportation(data):
 
 
 def lowestCategory(userId):  # check for lowest producer/category
-    # STEP1: get avg for each category over the month
+    # STEP1: get avg for each category over the Week
     # [{date: dksadkas, breakfast: {lamb:1}}, {date: dksadkas, breakfast: {lamb:1}}]
-    diet = getDietPrevMonth(userId)
+    diet = getDietPrevWeek(userId)
     dietCarbon = [calculateCarbonDiet(i) for i in diet]
     avgDiet = sum(dietCarbon)/len(dietCarbon)
 
-    transportation = getTransportationPrevMonth(userId)
+    transportation = getTransportationPrevWeek(userId)
     transportationCarbon = [
         calculateCarbonTransportation(i) for i in transportation]
     avgTransportation = sum(transportationCarbon)/len(transportationCarbon)
@@ -83,25 +83,25 @@ def lowestCategory(userId):  # check for lowest producer/category
     minAverage = min(category.values())
 
     minCategory = list(category.values()).index(minAverage) if list(
-        category.values()).index(minAverage) != 0 else 'diet'
+        category.values()).index(minAverage) != 0 else ''
 
     '''
-    check which category is the lowest using a months worth of data
+    check which category is the lowest using a Weeks worth of data
     run this each day
     '''
     return {'carbon': minAverage, 'category': minCategory, 'suggestion': getSuggestion(minCategory)}
 
 
 def highestCategory(userId):  # check for highest producer
-    # STEP1: get avg for each category over the month
+    # STEP1: get avg for each category over the Week
     # [{date: dksadkas, breakfast: {lamb:1}}, {date: dksadkas, breakfast: {lamb:1}}]
-    diet = getDietPrevMonth(userId)
+    diet = getDietPrevWeek(userId)
     dietCarbon = [calculateCarbonDiet(i) for i in diet]
     avgDiet = sum(dietCarbon)/len(dietCarbon)
 
     # transportation: getting the avg
     # [{date: dksadkas, breakfast: {lamb:1}}, {date: dksadkas, breakfast: {lamb:1}}]
-    transportation = getTransportationPrevMonth(userId)
+    transportation = getTransportationPrevWeek(userId)
     transportationCarbon = [
         calculateCarbonTransportation(i) for i in transportation]
     avgTransportation = sum(transportationCarbon)/len(transportationCarbon)
@@ -120,7 +120,7 @@ def highestCategory(userId):  # check for highest producer
     maxCategory = list(category.values()).index(maxAverage)
 
     '''
-    check which category is the highest using a months worth of data
+    check which category is the highest using a Weeks worth of data
     run this each day
     '''
     return {'carbon': maxAverage, 'category': maxCategory, 'suggestion': getSuggestion(maxCategory)}

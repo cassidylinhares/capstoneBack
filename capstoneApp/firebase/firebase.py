@@ -1,3 +1,4 @@
+from tkinter import N
 from firebase_admin import initialize_app, credentials, firestore
 from datetime import datetime, timedelta, date
 import random
@@ -36,25 +37,31 @@ def getLight(room):
 
 
 def insertLight(data):
+    light_data = {
+        'name': data['name'],
+        'status': data['status'],
+        'time': data.strftime("%Y-%m-%dT%H:%M:%SZ")
+    }
+
     db = firestore.client()
     history_ref = db.collection(u'lights').document(
-        data['name']).collection(u'history').document(data['time'])
-    doc_ref = db.collection(u'lights').document(data['name'])
+        light_data['name']).collection(u'history').document(light_data['time'])
+    doc_ref = db.collection(u'lights').document(light_data['name'])
 
     doc_ref.set({
-        u'status': data['status'],
-        u'time': datetime.fromisoformat(data['time'][:-1])
+        u'status': light_data['status'],
+        u'time': datetime.fromisoformat(light_data['time'][:-1])
     })
 
     history_ref.set({
-        u'status': data['status'],
-        u'time': datetime.fromisoformat(data['time'][:-1])
+        u'status': light_data['status'],
+        u'time': datetime.fromisoformat(light_data['time'][:-1])
     })
 
     doc = doc_ref.get()
 
     light = {}
-    light[data['time']] = doc.to_dict()
+    light[light_data['time']] = doc.to_dict()
 
     return light
 
@@ -250,6 +257,9 @@ def insertRecommendation(userId, datestamp, data):
 
 
 def getSuggestion(category):  # get suggestion for provided data
+    if category == '' or category is None:
+        return ''
+
     db = firestore.client()
 
     suggestions = {}

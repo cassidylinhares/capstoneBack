@@ -1,15 +1,18 @@
+from sched import scheduler
 from scheduler.recommendations import executeRecommendations
+from scheduler.lights import setWeekdayLightOn
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 from time import sleep
 
+scheduler = BackgroundScheduler()
+
 
 def start():
-    scheduler = BackgroundScheduler()
     scheduler.start()
     cronTrigger = CronTrigger(year='*', month='*', day='*',
-                              hour='20', minute='0', second='0')
-    scheduler.add_job(executeRecommendations, cronTrigger)
+                              hour='20', minute='0', second='0')  # will run at 8pm each day
+    scheduler.add_job(executeRecommendations,
+                      cronTrigger, id='recommendations')
 
-    while True:
-        sleep(5)
+    sleep(5)
