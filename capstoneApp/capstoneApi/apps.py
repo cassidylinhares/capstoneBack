@@ -6,5 +6,5 @@ class CapstoneapiConfig(AppConfig):
     name = 'capstoneApi'
 
     def ready(self) -> None:
-        from scheduler.scheduler import start
+        from jobscheduler.scheduler import start
         start()

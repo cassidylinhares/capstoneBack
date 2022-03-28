@@ -3,10 +3,9 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 import requests
-
+from jobscheduler.lights import pauseLight, resumeLight, setWeekdayLightOn, setWeekdayLightOff, setWeekendLightOn, setWeekendLightOff
 from firebase.firebase import getLights, getLight, insertLight, getTemps, insertTemp, insertLightDuration
 from capstoneApi.external import thermostat, lights
-# from scheduler.lights import pauseLight, resumeLight, setWeekdayLightOn, setWeekdayLightOff, setWeekendLightOn, setWeekendLightOff
 
 
 @api_view(['GET'])

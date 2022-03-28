@@ -2,7 +2,7 @@ import requests
 from apscheduler.triggers.cron import CronTrigger
 from firebase.firebase import insertLight
 from capstoneApi.external import lights
-from scheduler.scheduler import scheduler
+from jobscheduler.scheduler import scheduler
 
 '''
 room: select [room1, room2, room3, room4]
