@@ -1,7 +1,6 @@
-from calendar import week
 from firebase_admin import auth
-from firebase import getDietPrevWeek, getTransportationPrevWeek, getHousehold, insertRecommendation
-from constants import diet, transport, badDiet, meat, veggie
+from firebase.firebase import getDietPrevWeek, getTransportationPrevWeek, getHousehold, insertRecommendation
+from jobscheduler.constants import diet, badDiet, meat, veggie
 
 
 def executeRecommendations():
@@ -9,7 +8,6 @@ def executeRecommendations():
     for user in auth.list_users().iterate_all():
         print(user.uid)
         # print(lowestCategory(user.uid))
-        # highestCategory()
         thresholdDiet(user.uid)
         thresholdTransport(user.uid)
         thresholdHousehold(user.uid)
@@ -88,8 +86,10 @@ def thresholdHousehold(userId):
             'h today. Let\'s see if there is a light you can turn off!\n'
 
         lights = [(dailyDurationRoom1/dailyDuration, 'room1'), (dailyDurationRoom2/dailyDuration, 'room2'),
-                  (dailyDurationRoom3/dailyDuration, 'room3'), (dailyDurationRoom4/dailyDuration, 'room4')].sort(key=lambda x: x[0])
+                  (dailyDurationRoom3/dailyDuration, 'room3'), (dailyDurationRoom4/dailyDuration, 'room4')]
 
+        lights.sort(key=lambda x: x[0])
+        print(lights)
         report += 'We noticed you use' + lights[0][1] + ' the least, is there anyway to minimize this more? We also noticed you use ' + \
             lights[-1][1] + ' the most. Could this be cut down or put on to our scheduler to ensure it gets used only when needed.\n\n'
         report += 'Other recommendations we have are to switch to LEDs if you already have not.\nUse energy efficient appliances. \nTurn off lights that are not used or automate them.'
@@ -118,4 +118,4 @@ def thresholdTransport(userId):
     return insertRecommendation(userId, 'transport', report)
 
 
-print(thresholdHousehold('b5Y7xnDvjANXvJqgFA1Q8BHarTb2'))
+# print(thresholdHousehold('b5Y7xnDvjANXvJqgFA1Q8BHarTb2'))

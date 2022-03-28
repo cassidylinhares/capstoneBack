@@ -1,4 +1,3 @@
-from tkinter import N
 from firebase_admin import initialize_app, credentials, firestore
 from datetime import datetime, timedelta, date
 import random
@@ -57,7 +56,10 @@ def insertLight(data):
         u'time': datetime.fromisoformat(light_data['time'][:-1])
     })
 
-    return light_data
+    doc = doc_ref.get()
+    history_ref.get()
+
+    return doc.to_dict()
 
 
 def insertLightDuration(room, lastOn):
@@ -74,6 +76,7 @@ def insertLightDuration(room, lastOn):
         off_data['time'], "%Y-%m-%dT%H:%M:%SZ") - datetime.strptime(on_data['time'], "%Y-%m-%dT%H:%M:%SZ")
 
     duration_seconds = difference.total_seconds()
+    print(datetime.strptime(on_data['time'], "%Y-%m-%dT%H:%M:%SZ"))
     # get time in number of minutes, seconds
     minutes = duration_seconds/60
 
@@ -88,7 +91,7 @@ def insertLightDuration(room, lastOn):
         u'timeOn': datetime.fromisoformat(on_data['time'][:-1]),
         u'timeOff': datetime.fromisoformat(off_data['time'][:-1]),
         # 0.3892 is g of CO2 per min for LED light bulb
-        u'carbon': 0.3892 * (duration_seconds/60),
+        u'carbon': 0.3892 * minutes,
         u'id': date.today().strftime("%Y-%m-%d")
     })
 
@@ -305,26 +308,32 @@ def getHousehold():
 
 
 def insertRecommendation(userId, category, data):
-    today = date.today().strftime("%d-%m-%Y")
+    # today = date.today().strftime("%d-%m-%Y")
 
     db = firestore.client()
-    doc_user_ref = db.collection(u'recommendations').document(
+    doc_ref = db.collection(u'recommendations').document(
         userId)
 
-    d = doc_user_ref.get()
-    if d.exists == False:
-        doc_user_ref.set({})
+    doc = doc_ref.get()
 
-    doc_ref = db.collection(u'recommendations').document(
-        userId).collection(category).document(today)
-
-    doc_ref.set({
-        u'report': data,
-    })
+    if doc.to_dict() == {}:
+        doc_ref.set({
+            u'0': data,
+            u'counter': 1,
+        })
+    else:
+        d = doc.to_dict()
+        doc_ref.update({
+            str(d['counter']): data,
+            u'counter': firestore.Increment(1)
+        })
 
     doc = doc_ref.get()
 
     return doc.to_dict()
+
+
+# print(insertRecommendation('Test', 'ss', 'hey now youre rockstar'))
 
 
 def getSuggestion(category):  # get suggestion for provided data
