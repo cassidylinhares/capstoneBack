@@ -40,7 +40,6 @@ def insertLight(data):
         'status': data['status'],
         'time':  datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
     }
-
     db = firestore.client()
     history_ref = db.collection(u'lights').document(
         light_data['name']).collection(u'history').document(light_data['time'])

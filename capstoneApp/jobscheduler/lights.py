@@ -25,12 +25,11 @@ def setWeekdayLightOn(room, time):
 
     # set schedule
     lightOnTrigger = CronTrigger(
-        year='*', month='*', day='*', day_of_week='0-4', hour=h, minute=m, second='0')
+        year='*', month='*', day='*', day_of_week='0-5', hour=str(h), minute=str(m), second='0')
 
     # add job
-    scheduler.add_job(lightOn, lightOnTrigger, id=jobId)
-
-    return lightOnTrigger
+    scheduler.add_job(lambda: lightOn(room), lightOnTrigger, id=jobId)
+    return 0
 
 
 def setWeekdayLightOff(room, time):
@@ -46,12 +45,12 @@ def setWeekdayLightOff(room, time):
 
     # set schedule
     lightOffTrigger = CronTrigger(
-        year='*', month='*', day='*', day_of_week='0-4', hour=h, minute=m, second='0')
+        year='*', month='*', day='*', day_of_week='0-5', hour=str(h), minute=str(m), second='0')
 
     # add job
-    scheduler.add_job(lightOff, lightOffTrigger, id=jobId)
+    scheduler.add_job(lambda: lightOff(room), lightOffTrigger, id=jobId)
 
-    return lightOffTrigger
+    return 0
 
 ###### WEEKENDS ######
 
@@ -69,10 +68,10 @@ def setWeekendLightOn(room, time):
 
     # set schedule
     lightOnTrigger = CronTrigger(
-        year='*', month='*', day='*', day_of_week='5-6', hour=h, minute=m, second='0')
+        year='*', month='*', day='*', day_of_week='5-7', hour=str(h), minute=str(m), second='0')
 
     # add job
-    scheduler.add_job(lightOn, lightOnTrigger, id=jobId)
+    scheduler.add_job(lambda: lightOn(room), lightOnTrigger, id=jobId)
 
     return lightOnTrigger
 
@@ -90,10 +89,10 @@ def setWeekendLightOff(room, time):
 
     # set schedule
     lightOffTrigger = CronTrigger(
-        year='*', month='*', day='*', day_of_week='5-6', hour=h, minute=m, second='0')
+        year='*', month='*', day='*', day_of_week='5-7', hour=str(h), minute=str(m), second='0')
 
     # add job
-    scheduler.add_job(lightOff, lightOffTrigger, id=jobId)
+    scheduler.add_job(lambda: lightOff(room), lightOffTrigger, id=jobId)
 
     return lightOffTrigger
 

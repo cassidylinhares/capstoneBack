@@ -8,10 +8,10 @@ thermostat = {
 }
 
 lights = {
-    'room1': "http://192.168.16.52",
-    'room2': "http://192.168.16.52",
+    'room1': "http://192.168.16.96",
+    'room2': "http://192.168.16.195",
     'room3': "http://192.168.16.52",
-    'room4': "http://192.168.16.52",
+    'room4': "http://192.168.16.183",
     'getLight': "/getLight",
     'setLight': "/setLight?status="
 }
