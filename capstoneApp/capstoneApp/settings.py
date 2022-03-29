@@ -26,7 +26,7 @@ SECRET_KEY = 'd*o91_n&%lkcyh-xryk#h^5_^hkz81vgd)&o8p#mmg2@o=pw)3'
 DEBUG = True
 
 ALLOWED_HOSTS = ['127.0.0.1', '0.0.0.0',
-                 'ecopalapi.herokuapp.com', '192.168.129.177']
+                 'ecopalapi.herokuapp.com', '192.168.16.177', 'localhost']
 
 CORS_ORIGIN_WHITELIST = [
     'http://localhost:3000'
