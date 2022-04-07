@@ -1,18 +1,29 @@
-from firebase_admin import initialize_app, credentials, firestore
+from firebase_admin import initialize_app, credentials, firestore, db
 from datetime import datetime, timedelta, date
 import random
 
 # Use a service account
 cred = credentials.Certificate(
     '../../ecohub-707c9-firebase-adminsdk-ctcaz-710ec24c6b.json')
-initialize_app(cred)
+initialize_app(
+    cred, {'databaseURL': 'https://ecohub-707c9-default-rtdb.firebaseio.com'})
 
 ####### LIGHTS ######
 
 
+def setLight(room, cmd):
+    ref = db.reference(room)
+    ref.set(cmd)
+    return {
+        'status': ref.get(),
+        'name': room
+    }
+
+
 def getLights(room):
-    db = firestore.client()
-    col_ref = db.collection(u'lights').document(room).collection(u'history')
+    database = firestore.client()
+    col_ref = database.collection(u'lights').document(
+        room).collection(u'history')
     docs = col_ref.stream()
 
     lights = []
@@ -25,8 +36,8 @@ def getLights(room):
 
 
 def getLight(room):
-    db = firestore.client()
-    doc_ref = db.collection(u'lights').document(room)
+    database = firestore.client()
+    doc_ref = database.collection(u'lights').document(room)
     doc = doc_ref.get()
 
     data = doc.to_dict()
@@ -40,10 +51,10 @@ def insertLight(data):
         'status': data['status'],
         'time':  datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
     }
-    db = firestore.client()
-    history_ref = db.collection(u'lights').document(
+    database = firestore.client()
+    history_ref = database.collection(u'lights').document(
         light_data['name']).collection(u'history').document(light_data['time'])
-    doc_ref = db.collection(u'lights').document(light_data['name'])
+    doc_ref = database.collection(u'lights').document(light_data['name'])
 
     doc_ref.set({
         u'status': light_data['status'],
@@ -79,9 +90,9 @@ def insertLightDuration(room, lastOn):
     # get time in number of minutes, seconds
     minutes = duration_seconds/60
 
-    # insert info into db
-    db = firestore.client()
-    duration_ref = db.collection(u'lights').document(
+    # insert info into database
+    database = firestore.client()
+    duration_ref = database.collection(u'lights').document(
         room).collection(u'duration').document(off_data['time'])
 
     duration_ref.set({
@@ -105,8 +116,8 @@ def insertLightDuration(room, lastOn):
 
 
 def getTemps():
-    db = firestore.client()
-    col_ref = db.collection(u'thermostat')
+    database = firestore.client()
+    col_ref = database.collection(u'thermostat')
     docs = col_ref.stream()
 
     temps = []
@@ -119,8 +130,8 @@ def getTemps():
 
 
 def getTemp(timestamp):
-    db = firestore.client()
-    doc_ref = db.collection(u'thermostat').document(timestamp)
+    database = firestore.client()
+    doc_ref = database.collection(u'thermostat').document(timestamp)
     doc = doc_ref.get()
 
     temp = {}
@@ -130,8 +141,8 @@ def getTemp(timestamp):
 
 
 def insertTemp(data):
-    db = firestore.client()
-    doc_ref = db.collection(u'thermostat').document(data['time'])
+    database = firestore.client()
+    doc_ref = database.collection(u'thermostat').document(data['time'])
     doc_ref.set({
         u'temp': data['temp'],
         u'time': datetime.fromisoformat(data['time'][:-1])
@@ -148,8 +159,8 @@ def insertTemp(data):
 
 
 def getDiet(userId, datestamp):
-    db = firestore.client()
-    doc_ref = db.collection(u'userInfo').document(
+    database = firestore.client()
+    doc_ref = database.collection(u'userInfo').document(
         userId).collection(u'dietTotals').document(datestamp)
 
     doc = doc_ref.get()
@@ -200,8 +211,8 @@ def getDietPrevMonth(userId):
 
 
 def getTransportation(userId, datestamp):
-    db = firestore.client()
-    doc_ref = db.collection(u'userInfo').document(
+    database = firestore.client()
+    doc_ref = database.collection(u'userInfo').document(
         userId).collection(u'transportTotals').document(datestamp)
     doc = doc_ref.get()
 
@@ -258,10 +269,10 @@ def getTransportationPrevMonth(userId):
 
 def getHousehold():
     day = []
-    db = firestore.client()
+    database = firestore.client()
 
     # room 1
-    room1_ref = db.collection(u'lights').document(
+    room1_ref = database.collection(u'lights').document(
         'room1').collection(u'duration')
 
     query_room1 = room1_ref.where(
@@ -272,7 +283,7 @@ def getHousehold():
         day.append(doc.to_dict())
 
     # room 2
-    room2_ref = db.collection(u'lights').document(
+    room2_ref = database.collection(u'lights').document(
         'room2').collection(u'duration')
     query_room2 = room2_ref.where(
         u'id', u'==', datetime.now().strftime("%Y-%m-%d"))
@@ -282,7 +293,7 @@ def getHousehold():
         day.append(doc.to_dict())
 
     # room 3
-    room3_ref = db.collection(u'lights').document(
+    room3_ref = database.collection(u'lights').document(
         'room3').collection(u'duration')
     query_room3 = room3_ref.where(
         u'id', u'==', datetime.now().strftime("%Y-%m-%d"))
@@ -292,7 +303,7 @@ def getHousehold():
         day.append(doc.to_dict())
 
     # room 4
-    room4_ref = db.collection(u'lights').document(
+    room4_ref = database.collection(u'lights').document(
         'room4').collection(u'duration')
     query_room4 = room4_ref.where(
         u'id', u'==', datetime.now().strftime("%Y-%m-%d"))
@@ -307,10 +318,8 @@ def getHousehold():
 
 
 def insertRecommendation(userId, category, data):
-    # today = date.today().strftime("%d-%m-%Y")
-
-    db = firestore.client()
-    doc_ref = db.collection(u'recommendations').document(
+    database = firestore.client()
+    doc_ref = database.collection(u'recommendations').document(
         userId)
 
     doc = doc_ref.get()
@@ -332,19 +341,16 @@ def insertRecommendation(userId, category, data):
     return doc.to_dict()
 
 
-# print(insertRecommendation('Test', 'ss', 'hey now youre rockstar'))
-
-
 def getSuggestion(category):  # get suggestion for provided data
     if category == '' or category is None:
         return ''
 
-    db = firestore.client()
+    database = firestore.client()
 
     suggestions = {}
     recommendation = ''
 
-    doc_ref = db.collection(u'suggestions').document(
+    doc_ref = database.collection(u'suggestions').document(
         category)
     doc = doc_ref.get()
 

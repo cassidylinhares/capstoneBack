@@ -7,7 +7,6 @@ def executeRecommendations():
     # executing empty sample job
     for user in auth.list_users().iterate_all():
         print(user.uid)
-        # print(lowestCategory(user.uid))
         thresholdDiet(user.uid)
         thresholdTransport(user.uid)
         thresholdHousehold(user.uid)
@@ -23,10 +22,10 @@ def thresholdDiet(userId):
 
     # check if greater than weekly avg canadian
     if weeklyTotal > 43534:
-        report += 'Your weekly total is ' + str(weeklyTotal/1000) + \
+        report += 'DIET: Your weekly total is ' + str(weeklyTotal/1000) + \
             'kg, which is above what the avg Canadian is supposed to produce. You can refer to our suggestions for further tips!.\n'
     else:
-        report = 'Congrats on producing less CO2 than the avg Canadian! The avg Canadian produces 43.53kg a week and you produced ' + \
+        report = 'DIET: Congrats on producing less CO2 than the avg Canadian! The avg Canadian produces 43.53kg a week and you produced ' + \
             str(weeklyTotal/1000) + 'kg.'
         return insertRecommendation(userId, 'diet', report)
 
@@ -81,10 +80,10 @@ def thresholdHousehold(userId):
 
     # check if it's greater than the avg canadian
     if dailyTotalCarbon > 8493.15:
-        report += 'Your daily total is ' + str(int(dailyTotalCarbon/1000)) + \
+        report += 'HOUSEHOLD: Your daily total is ' + str(int(dailyTotalCarbon/1000)) + \
             'kg which is above what the avg Canadian is supposed to produce. here are our suggestions for further tips!.\n'
     else:
-        report = 'Congrats on producing less CO2 than the avg Canadian! The avg Canadian produces 8.49kg a week and you produced ' + \
+        report = 'HOUSEHOLD: Congrats on producing less CO2 than the avg Canadian! The avg Canadian produces 8.49kg a week and you produced ' + \
             str(round(dailyTotalCarbon/1000, 1)) + 'kg.'
         return insertRecommendation(userId, 'household', report)
 
@@ -115,10 +114,10 @@ def thresholdTransport(userId):
 
     # check if more than avg canadian
     if weeklyTotal > 95890:
-        report += 'Your weekly total is ' + str(int(weeklyTotal/1000)) + \
+        report += 'TRANSPORTATION: Your weekly total is ' + str(int(weeklyTotal/1000)) + \
             'kg which is above what the avg Canadian is supposed to produce. here are our suggestions for further tips!.\n'
     else:
-        report = 'Congrats on producing less CO2 than the avg Canadian! The avg Canadian produces 95.89kg a week and you produced ' + \
+        report = 'TRANSPORTATION: Congrats on producing less CO2 than the avg Canadian! The avg Canadian produces 95.89kg a week and you produced ' + \
             str(round(weeklyTotal/1000, 1)) + 'kg.'
         return insertRecommendation(userId, 'transport', report)
 
@@ -126,6 +125,3 @@ def thresholdTransport(userId):
     report += 'We recommend trying to achieve a short commute to work (<55km)! We also recommend reducing the number of leisure trips since this drives up your CO2 emissions significantly.'
 
     return insertRecommendation(userId, 'transport', report)
-
-
-# thresholdHousehold('b5Y7xnDvjANXvJqgFA1Q8BHarTb2')

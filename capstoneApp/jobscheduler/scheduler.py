@@ -10,7 +10,7 @@ scheduler = BackgroundScheduler()
 def start():
     scheduler.start()
     cronTrigger = CronTrigger(year='*', month='*', day='*',
-                              hour='20', minute='0', second='0')  # will run at 8pm each day
+                              hour='14', minute='07', second='0')  # will run at 8pm each day
     scheduler.add_job(executeRecommendations,
                       cronTrigger, id='recommendations')
 
