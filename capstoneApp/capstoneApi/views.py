@@ -3,7 +3,8 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from jobscheduler.lights import pauseLight, resumeLight, setWeekdayLightOn, setWeekdayLightOff, setWeekendLightOn, setWeekendLightOff
-from firebase.firebase import getLights, getLight, insertLight, getTemps, insertTemp, insertLightDuration, setLight
+from jobscheduler.thermostat import pauseThermostat, resumeThermostat, setWeekdayThermostatOn, setWeekdayThermostatOff, setWeekendThermostatOn, setWeekendThermostatOff
+from firebase.firebase import getLights, getLight, insertLight, getTemps, insertTemp, insertLightDuration, setLight, setTemp, getTemp
 
 
 @api_view(['GET'])
@@ -64,8 +65,8 @@ def insert_light(request):
 def set_weekday_schedule_light_on(request, room, time):
     try:
         print(room, time)
-        setWeekdayLightOn(room, time)
-        return Response(data="successfully updated", status=status.HTTP_201_CREATED)
+        res = setWeekdayLightOn(room, time)
+        return Response(data=res, status=status.HTTP_201_CREATED)
     except:
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -74,8 +75,8 @@ def set_weekday_schedule_light_on(request, room, time):
 def set_weekend_schedule_light_on(request, room, time):
     try:
         print(room, time)
-        setWeekendLightOn(room, time)
-        return Response(data="successfully updated", status=status.HTTP_201_CREATED)
+        res = setWeekendLightOn(room, time)
+        return Response(data=res, status=status.HTTP_201_CREATED)
     except:
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -84,8 +85,8 @@ def set_weekend_schedule_light_on(request, room, time):
 def set_weekday_schedule_light_off(request, room, time):
     try:
         print(room, time)
-        setWeekdayLightOff(room, time)
-        return Response(data="successfully updated", status=status.HTTP_201_CREATED)
+        res = setWeekdayLightOff(room, time)
+        return Response(data=res, status=status.HTTP_201_CREATED)
     except:
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -94,8 +95,8 @@ def set_weekday_schedule_light_off(request, room, time):
 def set_weekend_schedule_light_off(request, room, time):
     try:
         print(room, time)
-        setWeekendLightOff(room, time)
-        return Response(data="successfully updated", status=status.HTTP_201_CREATED)
+        res = setWeekendLightOff(room, time)
+        return Response(data=res, status=status.HTTP_201_CREATED)
     except:
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -132,24 +133,92 @@ def get_temps(request):
 
 
 @api_view(['GET'])
+def get_temp(request):
+    try:
+        lastest_entry = getTemp()
+        return Response(data=lastest_entry, status=status.HTTP_200_OK)
+    except:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['GET'])
 def set_temp(request, temp):
     try:
-        res = {}
-        return Response(data=res, status=status.HTTP_200_OK)
+        res = setTemp(temp)
+        print(res)
+        entry = insertTemp(res)
+        return Response(data=entry, status=status.HTTP_200_OK)
     except:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(['POST'])
 def insert_temp(request):
-    time = datetime.now()
     try:
-        temp = {
+        data = {
             u'temp': request.data['temp'],
-            u'time': time.strftime("%Y-%m-%dT%H:%M:%SZ")
+            u'time': datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
         }
-        # entry = insertTemp(temp)
+        entry = insertTemp(data)
 
-        return Response(data=temp, status=status.HTTP_201_CREATED)
+        return Response(data=entry, status=status.HTTP_201_CREATED)
+    except:
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+def set_weekday_schedule_thermostat_on(request, temp, time):
+    try:
+        print(temp, time)
+        res = setWeekdayThermostatOn(temp, time)
+        return Response(data=res, status=status.HTTP_201_CREATED)
+    except:
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+def set_weekend_schedule_thermostat_on(request, temp, time):
+    try:
+        print(temp, time)
+        res = setWeekendThermostatOn(temp, time)
+        return Response(data=res, status=status.HTTP_201_CREATED)
+    except:
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+def set_weekday_schedule_thermostat_off(request, temp, time):
+    try:
+        print(temp, time)
+        res = setWeekdayThermostatOff(temp, time)
+        return Response(data=res, status=status.HTTP_201_CREATED)
+    except:
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+def set_weekend_schedule_thermostat_off(request, temp, time):
+    try:
+        print(temp, time)
+        res = setWeekendThermostatOff(temp, time)
+        return Response(data=res, status=status.HTTP_201_CREATED)
+    except:
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+def pause_schedule_thermostat(request):
+    try:
+        res = pauseThermostat()
+        return Response(data=res, status=status.HTTP_201_CREATED)
+    except:
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+def resume_schedule_thermostat(request):
+    try:
+        res = resumeThermostat()
+        return Response(data=res, status=status.HTTP_201_CREATED)
     except:
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)

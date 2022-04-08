@@ -11,7 +11,7 @@ initialize_app(
 ####### LIGHTS ######
 
 
-def setLight(room, cmd):
+def setLight(room: str, cmd: str):
     ref = db.reference(room)
     ref.set(cmd)
     return {
@@ -20,7 +20,7 @@ def setLight(room, cmd):
     }
 
 
-def getLights(room):
+def getLights(room: str):
     database = firestore.client()
     col_ref = database.collection(u'lights').document(
         room).collection(u'history')
@@ -35,7 +35,7 @@ def getLights(room):
     return lights
 
 
-def getLight(room):
+def getLight(room: str):
     database = firestore.client()
     doc_ref = database.collection(u'lights').document(room)
     doc = doc_ref.get()
@@ -72,7 +72,7 @@ def insertLight(data):
     return doc.to_dict()
 
 
-def insertLightDuration(room, lastOn):
+def insertLightDuration(room: str, lastOn):
     on_data = {
         'time': lastOn['time'].strftime("%Y-%m-%dT%H:%M:%SZ")
     }
@@ -117,48 +117,75 @@ def insertLightDuration(room, lastOn):
 
 def getTemps():
     database = firestore.client()
-    col_ref = database.collection(u'thermostat')
-    docs = col_ref.stream()
-
-    temps = []
-    for doc in docs:
-        vals = {}
-        vals[doc.id] = doc.to_dict()
-        temps.append(vals)
-
-    return temps
-
-
-def getTemp(timestamp):
-    database = firestore.client()
-    doc_ref = database.collection(u'thermostat').document(timestamp)
+    doc_ref = database.collection(u'thermostat').document(u'history')
     doc = doc_ref.get()
 
-    temp = {}
-    temp[timestamp] = doc.to_dict()
+    return doc.to_dict()
 
-    return temp
+
+def getTemp():
+    database = firestore.client()
+    doc_ref = database.collection(u'thermostat').document(u'current')
+    doc = doc_ref.get()
+
+    return doc.to_dict()
+
+
+def setTemp(temp: str):
+    ref = db.reference('thermostat')
+    ref.set(str(temp))
+    return {
+        'temp': ref.get(),
+        'time': datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
+    }
 
 
 def insertTemp(data):
     database = firestore.client()
-    doc_ref = database.collection(u'thermostat').document(data['time'])
-    doc_ref.set({
-        u'temp': data['temp'],
-        u'time': datetime.fromisoformat(data['time'][:-1])
-    })
+    cur_ref = database.collection(u'thermostat').document(u'current')
+    history_ref = database.collection(u'thermostat').document(u'history')
 
+    cur_ref.set(data)
+
+    history_doc = history_ref.get()
+
+    if history_doc.to_dict() == {}:
+        history_ref.set({
+            u'0': data,
+            u'counter': 1,
+        })
+    else:
+        d = history_doc.to_dict()
+        history_ref.update({
+            str(d['counter']): data,
+            u'counter': firestore.Increment(1)
+        })
+
+    doc = cur_ref.get()
+
+    return doc.to_dict()
+
+###### SCHEDULER ######
+# device: room# or thermostat;
+# type: weekdayOn weekdayOff weekendOn weekendOff paused
+# value: <string: 24h time> or boolean
+
+
+def insertScheduler(device: str, type: str, value):
+    database = firestore.client()
+    doc_ref = database.collection(u'scheduler').document(device)
+
+    doc_ref.update({
+        type: value,
+    })
     doc = doc_ref.get()
 
-    temp = {}
-    temp[data['time']] = doc.to_dict()
-
-    return temp
+    return doc.to_dict()
 
 ###### DIET ########
 
 
-def getDiet(userId, datestamp):
+def getDiet(userId: str, datestamp: str):
     database = firestore.client()
     doc_ref = database.collection(u'userInfo').document(
         userId).collection(u'dietTotals').document(datestamp)
@@ -176,13 +203,13 @@ def getDiet(userId, datestamp):
     return diet
 
 
-def getDietPrevDay(userId):
+def getDietPrevDay(userId: str):
     yesterday = date.today() - timedelta(days=1)
 
     return getDiet(userId, yesterday.strftime("%Y-%m-%d"))
 
 
-def getDietPrevWeek(userId):
+def getDietPrevWeek(userId: str):
     diet = []
 
     # get previous 6 days
@@ -196,7 +223,7 @@ def getDietPrevWeek(userId):
     return diet
 
 
-def getDietPrevMonth(userId):
+def getDietPrevMonth(userId: str):
     diet = []
 
     for i in range(30, 0, -1):
@@ -210,7 +237,7 @@ def getDietPrevMonth(userId):
 ###### Transportation #######
 
 
-def getTransportation(userId, datestamp):
+def getTransportation(userId: str, datestamp: str):
     database = firestore.client()
     doc_ref = database.collection(u'userInfo').document(
         userId).collection(u'transportTotals').document(datestamp)
@@ -227,13 +254,13 @@ def getTransportation(userId, datestamp):
     return transportation
 
 
-def getTransportationPrevDay(userId):
+def getTransportationPrevDay(userId: str):
     yesterday = date.today() - timedelta(days=1)
 
     return getTransportation(userId, yesterday.strftime("%Y-%m-%d"))
 
 
-def getTransportationPrevWeek(userId):
+def getTransportationPrevWeek(userId: str):
     transportation = []
 
     # get previous 6 days
@@ -249,7 +276,7 @@ def getTransportationPrevWeek(userId):
     return transportation
 
 
-def getTransportationPrevMonth(userId):
+def getTransportationPrevMonth(userId: str):
     transportation = []
 
     # get previous 6 days
@@ -317,7 +344,7 @@ def getHousehold():
 ####### RECOMMENDATION #######
 
 
-def insertRecommendation(userId, category, data):
+def insertRecommendation(userId: str, data):
     database = firestore.client()
     doc_ref = database.collection(u'recommendations').document(
         userId)
@@ -341,7 +368,7 @@ def insertRecommendation(userId, category, data):
     return doc.to_dict()
 
 
-def getSuggestion(category):  # get suggestion for provided data
+def getSuggestion(category: str):  # get suggestion for provided data
     if category == '' or category is None:
         return ''
 
