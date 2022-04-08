@@ -23,7 +23,7 @@ def setWeekdayLightOn(room: str, time: str):
 
     # set schedule
     lightOnTrigger = CronTrigger(
-        year='*', month='*', day='*', day_of_week='0-6', hour=str(h), minute=str(m), second='0')
+        year='*', month='*', day='*', day_of_week='mon,tue,wed,thu,fri', hour=str(h), minute=str(m), second='0')
 
     # add job
     scheduler.add_job(lambda: lightOn(room), lightOnTrigger, id=jobId)
@@ -47,7 +47,7 @@ def setWeekdayLightOff(room: str, time: str):
 
     # set schedule
     lightOffTrigger = CronTrigger(
-        year='*', month='*', day='*', day_of_week='0-6', hour=str(h), minute=str(m), second='0')
+        year='*', month='*', day='*', day_of_week='mon,tue,wed,thu,fri', hour=str(h), minute=str(m), second='0')
 
     # add job
     scheduler.add_job(lambda: lightOff(room), lightOffTrigger, id=jobId)
@@ -73,7 +73,7 @@ def setWeekendLightOn(room: str, time: str):
 
     # set schedule
     lightOnTrigger = CronTrigger(
-        year='*', month='*', day='*', day_of_week='5-7', hour=str(h), minute=str(m), second='0')
+        year='*', month='*', day='*', day_of_week='sat,sun', hour=str(h), minute=str(m), second='0')
 
     # add job
     scheduler.add_job(lambda: lightOn(room), lightOnTrigger, id=jobId)
@@ -97,45 +97,53 @@ def setWeekendLightOff(room: str, time: str):
 
     # set schedule
     lightOffTrigger = CronTrigger(
-        year='*', month='*', day='*', day_of_week='5-7', hour=str(h), minute=str(m), second='0')
+        year='*', month='*', day='*', day_of_week='sat,sun', hour=str(h), minute=str(m), second='0')
 
     # add job
     scheduler.add_job(lambda: lightOff(room), lightOffTrigger, id=jobId)
 
     # update db to reflect the new changes
-    insertScheduler(room, 'weekdendOff', time)
+    insertScheduler(room, 'weekendOff', time)
     res = insertScheduler(room, 'paused', False)
     return res
 
 ###### SCHEDULING ######
 
 
-def pauseLight(room):
+def pauseLight(room: str):
     jobWeekdayOff = 'weekday_light_off_' + room
     jobWeekdayOn = 'weekday_light_on_' + room
     jobWeekendOff = 'weekend_light_off_' + room
     jobWeekendOn = 'weekend_light_on_' + room
 
-    scheduler.pause_job(job_id=jobWeekdayOff)
-    scheduler.pause_job(job_id=jobWeekdayOn)
-    scheduler.pause_job(job_id=jobWeekendOff)
-    scheduler.pause_job(job_id=jobWeekendOn)
+    if scheduler.get_job(job_id=jobWeekdayOff) is not None:
+        scheduler.pause_job(job_id=jobWeekdayOff)
+    if scheduler.get_job(job_id=jobWeekdayOn) is not None:
+        scheduler.pause_job(job_id=jobWeekdayOn)
+    if scheduler.get_job(job_id=jobWeekendOff) is not None:
+        scheduler.pause_job(job_id=jobWeekendOff)
+    if scheduler.get_job(job_id=jobWeekendOn) is not None:
+        scheduler.pause_job(job_id=jobWeekendOn)
 
     # update db to reflect the new changes
     res = insertScheduler(room, 'paused', True)
     return res
 
 
-def resumeLight(room):
+def resumeLight(room: str):
     jobWeekdayOff = 'weekday_light_off_' + room
     jobWeekdayOn = 'weekday_light_on_' + room
     jobWeekendOff = 'weekend_light_off_' + room
     jobWeekendOn = 'weekend_light_on_' + room
 
-    scheduler.resume_job(job_id=jobWeekdayOff)
-    scheduler.resume_job(job_id=jobWeekdayOn)
-    scheduler.resume_job(job_id=jobWeekendOff)
-    scheduler.resume_job(job_id=jobWeekendOn)
+    if scheduler.get_job(job_id=jobWeekdayOff) is not None:
+        scheduler.resume_job(job_id=jobWeekdayOff)
+    if scheduler.get_job(job_id=jobWeekdayOn) is not None:
+        scheduler.resume_job(job_id=jobWeekdayOn)
+    if scheduler.get_job(job_id=jobWeekendOff) is not None:
+        scheduler.resume_job(job_id=jobWeekendOff)
+    if scheduler.get_job(job_id=jobWeekendOn) is not None:
+        scheduler.resume_job(job_id=jobWeekendOn)
 
     # update db to reflect the new changes
     res = insertScheduler(room, 'paused', False)
@@ -144,11 +152,11 @@ def resumeLight(room):
 ###### HELPERS ######
 
 
-def lightOn(room):
+def lightOn(room: str):
     res = setLight(room, 'on')
     insertLight(res)
 
 
-def lightOff(room):
+def lightOff(room: str):
     res = setLight(room, 'off')
     insertLight(res)

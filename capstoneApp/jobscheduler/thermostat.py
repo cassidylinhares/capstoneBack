@@ -18,7 +18,7 @@ def setWeekdayThermostatOn(temp: str, time: str):
 
     # set schedule
     thermostatOnTrigger = CronTrigger(
-        year='*', month='*', day='*', day_of_week='0-6', hour=str(h), minute=str(m), second='0')
+        year='*', month='*', day='*', day_of_week='mon,tue,wed,thu,fri', hour=str(h), minute=str(m), second='0')
 
     # add job
     scheduler.add_job(lambda: thermostatOn(
@@ -45,7 +45,7 @@ def setWeekdayThermostatOff(temp: str, time: str):
 
     # set schedule
     thermostatOffTrigger = CronTrigger(
-        year='*', month='*', day='*', day_of_week='0-6', hour=str(h), minute=str(m), second='0')
+        year='*', month='*', day='*', day_of_week='mon,tue,wed,thu,fri', hour=str(h), minute=str(m), second='0')
 
     # add job
     scheduler.add_job(lambda: thermostatOff(
@@ -73,7 +73,7 @@ def setWeekendThermostatOn(temp: str, time: str):
 
     # set schedule
     thermostatOnTrigger = CronTrigger(
-        year='*', month='*', day='*', day_of_week='5-7', hour=str(h), minute=str(m), second='0')
+        year='*', month='*', day='*', day_of_week='sat,sun', hour=str(h), minute=str(m), second='0')
 
     # add job
     scheduler.add_job(lambda: thermostatOn(
@@ -99,14 +99,14 @@ def setWeekendThermostatOff(temp: str, time: str):
 
     # set schedule
     thermostatOffTrigger = CronTrigger(
-        year='*', month='*', day='*', day_of_week='5-7', hour=str(h), minute=str(m), second='0')
+        year='*', month='*', day='*', day_of_week='sat,sun', hour=str(h), minute=str(m), second='0')
 
     # add job
     scheduler.add_job(lambda: thermostatOff(
         temp), thermostatOffTrigger, id=jobId)
 
     # update db to reflect the new changes
-    insertScheduler('thermostat', 'weekdendOff', {
+    insertScheduler('thermostat', 'weekendOff', {
         u'time': time, u'temp': temp})
     res = insertScheduler('thermostat', 'paused', False)
     return res
@@ -120,10 +120,16 @@ def pauseThermostat():
     jobWeekendOff = 'weekend_thermostat_off'
     jobWeekendOn = 'weekend_thermostat_on'
 
-    scheduler.pause_job(job_id=jobWeekdayOff)
-    scheduler.pause_job(job_id=jobWeekdayOn)
-    scheduler.pause_job(job_id=jobWeekendOff)
-    scheduler.pause_job(job_id=jobWeekendOn)
+    if scheduler.get_job(job_id=jobWeekdayOff) is not None:
+        scheduler.pause_job(job_id=jobWeekdayOff)
+    if scheduler.get_job(job_id=jobWeekdayOn) is not None:
+        scheduler.pause_job(job_id=jobWeekdayOn)
+    if scheduler.get_job(job_id=jobWeekendOff) is not None:
+        scheduler.pause_job(job_id=jobWeekendOff)
+    if scheduler.get_job(job_id=jobWeekendOn) is not None:
+        scheduler.pause_job(job_id=jobWeekendOn)
+
+    print((20+4) % 24)
 
     # update db to reflect the new changes
     res = insertScheduler('thermostat', 'paused', True)
@@ -136,10 +142,14 @@ def resumeThermostat():
     jobWeekendOff = 'weekend_thermostat_off'
     jobWeekendOn = 'weekend_thermostat_on'
 
-    scheduler.resume_job(job_id=jobWeekdayOff)
-    scheduler.resume_job(job_id=jobWeekdayOn)
-    scheduler.resume_job(job_id=jobWeekendOff)
-    scheduler.resume_job(job_id=jobWeekendOn)
+    if scheduler.get_job(job_id=jobWeekdayOff) is not None:
+        scheduler.resume_job(job_id=jobWeekdayOff)
+    if scheduler.get_job(job_id=jobWeekdayOn) is not None:
+        scheduler.resume_job(job_id=jobWeekdayOn)
+    if scheduler.get_job(job_id=jobWeekendOff) is not None:
+        scheduler.resume_job(job_id=jobWeekendOff)
+    if scheduler.get_job(job_id=jobWeekendOn) is not None:
+        scheduler.resume_job(job_id=jobWeekendOn)
 
     # update db to reflect the new changes
     res = insertScheduler('thermostat', 'paused', False)
